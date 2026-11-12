@@ -75,3 +75,85 @@ def extraer_dominio(correo: str):
     if not correo or "@" not in correo:
         return "Dominio no disponible"
     return correo.strip().split("@")[1].lower()
+
+
+
+"""EJERICIO 3 VALIDAR DE  modeda , SOLO SE PERMITE PEN, USD y montos"""
+def validar_divisa(moneda: str, monto: float):
+    monedas_permitidas = ("PEN", "USD")
+    if monto>=0 and moneda.upper() in monedas_permitidas:
+        return True
+    else:
+        return False
+
+    
+
+"""EJERCICIO 4 conversor de divisas con tasas configurable"""
+def convertir_a_usd(monto:float, moneda_origen:str, tasa_cambio:float):
+    moneda = moneda_origen.upper()
+    if moneda == "PEN":
+        return round(monto / tasa_cambio, 2)
+    if moneda == "USD":
+        return round(monto, 2)
+
+
+"""EJERCICIO 5 orquestador del pipiline """
+#filstrar por el estado de negocio 
+# limpiar el nombre del cliente
+# determinar el dominio
+# validar la transaccion
+# convertir a USD si es necesario
+# CONSTRUIR  un diccionario de salida
+
+def ejecutar_pipiline(datos_crudos: list[dict]):
+
+    registros_limpios = []
+    descartados = 0
+    monto_total = 0
+
+    # 1. Filtrar por el estado del negocio
+    for fila in datos_crudos:
+
+        if fila["estado"] != "COMPLETADO":
+            descartados += 1
+            continue
+
+        # Crear una copia de la fila original
+        fila = fila.copy()
+
+        # 2. Validar la transacción
+        if not validar_divisa(fila["moneda"], fila["subtotal"]):
+            descartados += 1
+            continue
+
+        # 3. Limpiar nombres
+        fila["cliente"] = limpiar_nombre(fila["cliente"])
+
+        # 4. Determinar el dominio
+        fila["dominio"] = extraer_dominio(fila["email"])
+
+        # 5. Convertir a USD
+        fila["subtotal"] = convertir_a_usd(
+            fila["subtotal"], fila["moneda"], 3.5
+        )
+
+        fila["moneda"] = "USD"
+
+        # 6. Calcular monto total
+        monto_total += fila["subtotal"]
+
+        # 7. Agregar fila limpia
+        registros_limpios.append(fila)
+
+    return {
+        "data_final": registros_limpios,
+        "registros_procesados": len(datos_crudos),
+        "registros_descartados": descartados,
+        "monto_total_usd": round(monto_total, 2)
+    }
+
+
+from pprint import pprint
+
+resultado = ejecutar_pipiline(ventas_crudas)
+pprint(resultado)
