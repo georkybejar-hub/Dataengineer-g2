@@ -1,0 +1,7 @@
+Hola Python
+hoho
+wqdw
+qd
+qwd
+AWSTemplateFormatVersion: '2010-09-09'Conditions:
+  qwdqd: 
