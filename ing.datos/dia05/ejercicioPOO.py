@@ -7,8 +7,7 @@ encriptada por defecto en base a la fecha de nacimiento.
 # Output [{"id": 1, "nombre": "...", "apellido": "...", "activo": True}, {}, ..., {}]
 """
 import csv
-
-
+import hashlib
 class Usuario:
     def __init__(
         self,
@@ -21,6 +20,7 @@ class Usuario:
         pais,
         fecha_registro,
         activo
+  
     ):
         self.id = id
         self.nombre = nombre
@@ -31,7 +31,16 @@ class Usuario:
         self.pais = pais
         self.fecha_registro = fecha_registro
         self.activo = activo
+        self.password = self.__generar_password_encriptada()
+
+    def __generar_password_encriptada(self):
+        fecha_registro_bytes = self.fecha_registro.encode("utf-8")
+        return hashlib.sha256(fecha_registro_bytes).hexdigest()
+    
+    
+    
     #construir el diccionario
+    
     def to_dict(self):
         return {
             "id":self.nombre,
@@ -41,7 +50,8 @@ class Usuario:
             "ciudad":self.ciudad,
             "pais":self.pais,
             "fecha_registro":self.fecha_registro,
-            "activo": self.activo
+            "activo": self.activo,
+            "password":self.password
 
         }
 
