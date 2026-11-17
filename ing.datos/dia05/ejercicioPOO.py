@@ -6,18 +6,31 @@ encriptada por defecto en base a la fecha de nacimiento.
 
 # Output [{"id": 1, "nombre": "...", "apellido": "...", "activo": True}, {}, ..., {}]
 """
+import csv
+
 
 class Usuario:
-    def __init__(self):
-        self.id = 1
-        self.nombre = "Lucía"
-        self.apellido = "Mendoza"
-        self.email = "email@email.com"
-        self.telefono = "987654321"
-        self.ciudad = "Arequipa"
-        self.pais = "Perú"
-        self.fecha_registro = "2025-01-01"
-        self.activo = True
+    def __init__(
+        self,
+        id,
+        nombre,
+        apellido,
+        email,
+        telefono,
+        ciudad,
+        pais,
+        fecha_registro,
+        activo
+    ):
+        self.id = id
+        self.nombre = nombre
+        self.apellido = apellido
+        self.email = email
+        self.telefono = telefono
+        self.ciudad = ciudad
+        self.pais = pais
+        self.fecha_registro = fecha_registro
+        self.activo = activo
     #construir el diccionario
     def to_dict(self):
         return {
@@ -31,6 +44,33 @@ class Usuario:
             "activo": self.activo
 
         }
-usuario = Usuario()
-usuario_dict= usuario.to_dict()
-print(usuario_dict)
+
+def main():
+    usuario_objeto = []
+    with open("datos.csv", "r", encoding="utf-8") as archivo:
+        lector = csv.reader(archivo)
+        n_fila = 0
+
+        for fila in lector:
+            n_fila = n_fila + 1
+
+            if n_fila == 1:
+                continue
+
+            usuario = Usuario(*fila)
+            usuario_objeto.append(usuario)
+
+    def obtener_apellido(usuario):
+        return usuario.apellido.lower()    
+    usuario_ordenados = sorted(
+        usuario_objeto,
+         key= obtener_apellido
+     )
+
+    resultado_final=[]
+    for user in usuario_ordenados:
+        resultado_final.append(user.to_dict())
+    print(resultado_final)
+      
+if __name__ == "__main__":
+    main()
